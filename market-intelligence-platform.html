@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Groundwork — Market Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0d0d0d;
+  --ink-soft: #4a4a4a;
+  --ink-muted: #8a8a8a;
+  --paper: #f8f6f1;
+  --paper-warm: #f2ede4;
+  --paper-card: #ffffff;
+  --accent: #1a6b4a;
+  --accent-light: #e8f4ef;
+  --accent-mid: #2d9b6d;
+  --amber: #c97c2a;
+  --amber-light: #fdf3e7;
+  --red-soft: #c94040;
+  --red-light: #fdf0f0;
+  --border: rgba(13,13,13,0.1);
+  --border-mid: rgba(13,13,13,0.18);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+  --r: 10px;
+  --r-sm: 6px;
+  --r-lg: 16px;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--paper); color: var(--ink); min-height: 100vh; line-height: 1.6; }
+
+/* ── LAYOUT ── */
+.shell { display: flex; min-height: 100vh; }
+.sidebar { width: 260px; min-height: 100vh; background: var(--ink); color: #fff; display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+.main { margin-left: 260px; flex: 1; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.logo-mark { font-family: var(--font-display); font-size: 22px; color: #fff; letter-spacing: -0.3px; }
+.logo-mark span { color: #4ade80; }
+.logo-sub { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+
+.sidebar-section { padding: 20px 16px 8px; }
+.sidebar-label { font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--r-sm); cursor: pointer; font-size: 13.5px; color: rgba(255,255,255,0.65); transition: all 0.15s; margin-bottom: 2px; }
+.nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.nav-item.active { background: rgba(74,222,128,0.12); color: #4ade80; }
+.nav-icon { width: 16px; height: 16px; opacity: 0.7; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.project-card { margin: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--r); padding: 14px; }
+.project-card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+.project-name { font-size: 13px; color: #fff; font-weight: 500; margin-bottom: 3px; }
+.project-meta { font-size: 11px; color: rgba(255,255,255,0.4); }
+.phase-dots { display: flex; gap: 4px; margin-top: 10px; }
+.phase-dot { height: 4px; flex: 1; border-radius: 2px; background: rgba(255,255,255,0.15); }
+.phase-dot.done { background: #4ade80; }
+.phase-dot.active { background: rgba(74,222,128,0.5); }
+
+.sidebar-bottom { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+.new-project-btn { width: 100%; padding: 10px; background: #4ade80; color: #0d0d0d; border: none; border-radius: var(--r-sm); font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-body); transition: opacity 0.15s; }
+.new-project-btn:hover { opacity: 0.9; }
+
+/* ── TOPBAR ── */
+.topbar { height: 60px; background: var(--paper-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 32px; gap: 12px; position: sticky; top: 0; z-index: 50; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-muted); }
+.breadcrumb .current { color: var(--ink); font-weight: 500; }
+.breadcrumb-sep { color: var(--ink-muted); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.industry-badge { padding: 5px 12px; background: var(--accent-light); color: var(--accent); border-radius: 20px; font-size: 12px; font-weight: 500; }
+.btn-outline { padding: 7px 14px; background: transparent; border: 1px solid var(--border-mid); border-radius: var(--r-sm); font-size: 13px; cursor: pointer; font-family: var(--font-body); color: var(--ink); transition: all 0.15s; }
+.btn-outline:hover { background: var(--paper-warm); }
+.btn-primary { padding: 7px 16px; background: var(--accent); color: #fff; border: none; border-radius: var(--r-sm); font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-body); transition: opacity 0.15s; }
+.btn-primary:hover { opacity: 0.88; }
+
+/* ── VIEWS ── */
+.view { display: none; padding: 32px; max-width: 1100px; }
+.view.active { display: block; }
+
+/* ── HERO SECTION ── */
+.page-hero { margin-bottom: 32px; }
+.page-hero h1 { font-family: var(--font-display); font-size: 34px; font-weight: 400; color: var(--ink); line-height: 1.2; margin-bottom: 8px; }
+.page-hero h1 em { color: var(--accent); font-style: italic; }
+.page-hero p { font-size: 15px; color: var(--ink-soft); max-width: 560px; line-height: 1.7; }
+
+/* ── SETUP VIEW ── */
+.setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
+.form-input { padding: 10px 14px; background: var(--paper-card); border: 1px solid var(--border-mid); border-radius: var(--r-sm); font-size: 14px; color: var(--ink); font-family: var(--font-body); transition: border-color 0.15s; }
+.form-input:focus { outline: none; border-color: var(--accent); }
+.form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8a8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+.industry-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.industry-pill { padding: 8px 16px; border: 1px solid var(--border-mid); border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; color: var(--ink-soft); background: var(--paper-card); }
+.industry-pill:hover { border-color: var(--accent); color: var(--accent); }
+.industry-pill.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+.setup-cta { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+/* ── PHASE NAV ── */
+.phase-nav { display: flex; gap: 0; margin-bottom: 32px; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; background: var(--paper-card); }
+.phase-tab { flex: 1; padding: 14px 16px; text-align: center; cursor: pointer; transition: all 0.15s; border-right: 1px solid var(--border); position: relative; }
+.phase-tab:last-child { border-right: none; }
+.phase-tab .pt-num { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+.phase-tab .pt-name { font-size: 13.5px; font-weight: 500; color: var(--ink-soft); }
+.phase-tab.active { background: var(--accent); }
+.phase-tab.active .pt-num { color: rgba(255,255,255,0.65); }
+.phase-tab.active .pt-name { color: #fff; }
+.phase-tab.done .pt-num::before { content: "✓ "; color: var(--accent); }
+.phase-tab.done .pt-name { color: var(--accent); }
+
+/* ── CARDS ── */
+.card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+.card-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+.card-icon { width: 40px; height: 40px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.card-icon.green { background: var(--accent-light); }
+.card-icon.amber { background: var(--amber-light); }
+.card-icon.red { background: var(--red-light); }
+.card-title { font-size: 16px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.card-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.card-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+.why-box { background: var(--accent-light); border-left: 3px solid var(--accent); border-radius: 0 var(--r-sm) var(--r-sm) 0; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #1a4a38; line-height: 1.6; }
+.why-box strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 3px; }
+
+/* ── STEPS ── */
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.step:last-child { border-bottom: none; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--paper-warm); border: 1px solid var(--border-mid); font-size: 12px; font-weight: 500; color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-body { flex: 1; }
+.step-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.step-text { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+
+/* ── COMPETITOR TABLE ── */
+.comp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.comp-filters { display: flex; gap: 8px; }
+.filter-chip { padding: 5px 12px; border: 1px solid var(--border-mid); border-radius: 20px; font-size: 12px; cursor: pointer; color: var(--ink-soft); transition: all 0.15s; }
+.filter-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.table-wrap { overflow-x: auto; border-radius: var(--r-sm); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
+thead { background: var(--paper-warm); }
+th { padding: 10px 14px; text-align: left; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-soft); }
+td:first-child { color: var(--ink); font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--paper); }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin: 1px; }
+.tag.geo { background: #e8f0fe; color: #1a4ba0; }
+.tag.client { background: #fef3e2; color: #7a4500; }
+.revenue-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; }
+.revenue-badge.high { color: var(--accent); }
+.revenue-badge.mid { color: var(--amber); }
+.revenue-badge.low { color: var(--ink-muted); }
+a.website-link { color: var(--accent); text-decoration: none; font-size: 12px; }
+a.website-link:hover { text-decoration: underline; }
+
+/* ── SOURCE GRID ── */
+.source-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.source-item { background: var(--paper-warm); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px; }
+.source-item strong { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.source-item span { font-size: 12px; color: var(--ink-muted); line-height: 1.5; display: block; }
+
+/* ── PROMPT BOX ── */
+.prompt-box { background: var(--paper-warm); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; margin-top: 16px; }
+.prompt-box-label { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-muted); margin-bottom: 10px; }
+.prompt-row { display: flex; gap: 8px; }
+.prompt-input { flex: 1; padding: 10px 14px; background: var(--paper-card); border: 1px solid var(--border-mid); border-radius: var(--r-sm); font-size: 13.5px; color: var(--ink); font-family: var(--font-body); }
+.prompt-input:focus { outline: none; border-color: var(--accent); }
+.prompt-btn { padding: 10px 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--r-sm); font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-body); white-space: nowrap; transition: opacity 0.15s; }
+.prompt-btn:hover { opacity: 0.88; }
+
+/* ── METRIC CARDS ── */
+.metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.metric-card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-muted); margin-bottom: 6px; }
+.metric-value { font-size: 24px; font-weight: 300; color: var(--ink); font-family: var(--font-display); }
+.metric-sub { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+
+/* ── BADGES ── */
+.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge.core { background: #fdf0e8; color: #8a3a00; }
+.badge.required { background: #fde8e8; color: #8a0000; }
+.badge.insight { background: var(--accent-light); color: var(--accent); }
+
+/* ── REPORT CTA ── */
+.report-cta { background: var(--ink); color: #fff; border-radius: var(--r-lg); padding: 24px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.report-cta-text h3 { font-family: var(--font-display); font-size: 20px; font-weight: 400; margin-bottom: 4px; }
+.report-cta-text p { font-size: 13px; color: rgba(255,255,255,0.6); }
+.report-cta-btn { margin-left: auto; padding: 11px 22px; background: #4ade80; color: #0d0d0d; border: none; border-radius: var(--r-sm); font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font-body); white-space: nowrap; transition: opacity 0.15s; }
+.report-cta-btn:hover { opacity: 0.9; }
+
+/* ── LANDING ── */
+.landing-hero { padding: 80px 40px 60px; max-width: 800px; }
+.landing-hero .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 20px; }
+.landing-hero h1 { font-family: var(--font-display); font-size: 52px; line-height: 1.1; color: var(--ink); margin-bottom: 20px; }
+.landing-hero h1 em { color: var(--accent); font-style: italic; }
+.landing-hero p { font-size: 17px; color: var(--ink-soft); max-width: 500px; line-height: 1.8; margin-bottom: 32px; }
+.landing-cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-lg { padding: 14px 28px; font-size: 15px; font-weight: 500; border-radius: var(--r-sm); cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
+.btn-lg.primary { background: var(--accent); color: #fff; border: none; }
+.btn-lg.primary:hover { opacity: 0.88; }
+.btn-lg.secondary { background: transparent; color: var(--ink); border: 1px solid var(--border-mid); }
+.btn-lg.secondary:hover { background: var(--paper-warm); }
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; padding: 0 40px 60px; }
+.feature-card { background: var(--paper-card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; }
+.feature-num { font-family: var(--font-display); font-size: 36px; color: var(--accent); opacity: 0.4; line-height: 1; margin-bottom: 12px; }
+.feature-card h3 { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+.feature-card p { font-size: 13px; color: var(--ink-soft); line-height: 1.7; }
+
+/* ── INFO PILL ROW ── */
+.info-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.info-pill { font-size: 12px; padding: 4px 12px; background: var(--paper-warm); border: 1px solid var(--border); border-radius: 20px; color: var(--ink-soft); }
+
+/* ── VALIDATION CHECKS ── */
+.check-list { display: flex; flex-direction: column; gap: 8px; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--paper-warm); }
+.check-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+.check-icon.ok { background: var(--accent-light); color: var(--accent); }
+.check-icon.warn { background: var(--amber-light); color: var(--amber); }
+.check-icon.req { background: var(--red-light); color: var(--red-soft); }
+.check-text { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+.check-text strong { color: var(--ink); font-weight: 500; }
+
+/* ── EXPANSION MATRIX ── */
+.matrix-row { display: grid; grid-template-columns: 1.4fr repeat(4,1fr); gap: 0; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 14px; }
+.matrix-cell { padding: 12px 14px; font-size: 13px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.matrix-cell:last-child { border-right: none; }
+.matrix-cell.header { background: var(--paper-warm); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-muted); }
+.matrix-cell.country { font-weight: 500; color: var(--ink); background: var(--paper-card); }
+.score-bar { height: 6px; border-radius: 3px; background: var(--border); margin-top: 4px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+.score-fill.amber { background: var(--amber); }
+.score-fill.low { background: #ddd; }
+
+/* ── TABS INSIDE CARD ── */
+.inner-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.inner-tab { padding: 8px 16px; font-size: 13px; cursor: pointer; color: var(--ink-muted); border-bottom: 2px solid transparent; transition: all 0.15s; }
+.inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.view.active { animation: fadeUp 0.25s ease; }
+.card { animation: fadeUp 0.2s ease both; }
+.card:nth-child(2) { animation-delay: 0.05s; }
+.card:nth-child(3) { animation-delay: 0.1s; }
+.card:nth-child(4) { animation-delay: 0.15s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; min-height: auto; position: static; flex-direction: row; flex-wrap: wrap; }
+  .main { margin-left: 0; }
+  .setup-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .landing-hero h1 { font-size: 36px; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Ground<span>work</span></div>
+      <div class="logo-sub">Market Intelligence</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <div class="nav-item active" onclick="showView('landing')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" onclick="showView('setup')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+        New project
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Phases</div>
+      <div class="nav-item" onclick="showView('research'); showPhase('research')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+        Market research
+      </div>
+      <div class="nav-item" onclick="showView('research'); showPhase('validation')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8l3 3 7-7"/></svg>
+        Market validation
+      </div>
+      <div class="nav-item" onclick="showView('research'); showPhase('expansion')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 13L13 3M8 3h5v5"/></svg>
+        Market expansion
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-card-label">Current project</div>
+      <div class="project-name" id="sidebar-project-name">—</div>
+      <div class="project-meta" id="sidebar-project-industry">No industry selected</div>
+      <div class="phase-dots">
+        <div class="phase-dot" id="dot-1"></div>
+        <div class="phase-dot" id="dot-2"></div>
+        <div class="phase-dot" id="dot-3"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <button class="new-project-btn" onclick="showView('setup')">+ New project</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span id="bc-phase">Overview</span>
+        <span class="breadcrumb-sep" id="bc-sep" style="display:none">›</span>
+        <span class="current" id="bc-current"></span>
+      </div>
+      <div class="topbar-right">
+        <div class="industry-badge" id="top-industry-badge" style="display:none"></div>
+        <button class="btn-outline" onclick="showView('setup')">Settings</button>
+        <button class="btn-primary" id="top-generate-btn" style="display:none" onclick="generateReport()">Generate report</button>
+      </div>
+    </div>
+
+    <!-- ── LANDING VIEW ── -->
+    <div id="view-landing" class="view active">
+      <div class="landing-hero">
+        <div class="eyebrow">Market intelligence platform</div>
+        <h1>Enter any market with <em>confidence</em></h1>
+        <p>A structured three-phase framework for market research, validation, and expansion — powered by AI and grounded in verified public sources.</p>
+        <div class="landing-cta-row">
+          <button class="btn-lg primary" onclick="showView('setup')">Start a new project</button>
+          <button class="btn-lg secondary" onclick="showView('research'); showPhase('research')">Explore the framework</button>
+        </div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-num">01</div>
+          <h3>Market research</h3>
+          <p>Competitor analysis with verified revenue, geographies, key clients, and websites. Market sizing from authoritative public sources. Fully cited.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">02</div>
+          <h3>Market validation</h3>
+          <p>Customer interviews, legal risk assessment, freelance model viability, unit economics testing — before you deploy capital.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">03</div>
+          <h3>Market expansion</h3>
+          <p>Prioritisation scoring, beachhead sequencing, go-to-market localisation, and KPI tracking for every new market entered.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETUP VIEW ── -->
+    <div id="view-setup" class="view">
+      <div class="page-hero">
+        <h1>Set up your <em>project</em></h1>
+        <p>Define your company, industry, and target markets. This shapes every report and research output across all three phases.</p>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green">🏢</div>
+          <div>
+            <div class="card-title">Company details</div>
+            <div class="card-desc">Basic information about the company entering the new market.</div>
+          </div>
+        </div>
+        <div class="setup-grid">
+          <div class="form-group">
+            <div class="form-label">Company name</div>
+            <input class="form-input" id="company-name" placeholder="e.g. Flovi" oninput="updateProjectMeta()" />
+          </div>
+          <div class="form-group">
+            <div class="form-label">Home market</div>
+            <input class="form-input" id="home-market" placeholder="e.g. Finland" />
+          </div>
+          <div class="form-group full">
+            <div class="form-label">What does your company do?</div>
+            <input class="form-input" id="company-desc" placeholder="e.g. Platform connecting car dealers with freelance vehicle relocation drivers" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon amber">🏭</div>
+          <div>
+            <div class="card-title">Industry</div>
+            <div class="card-desc">Select the industry that best matches your business. This drives every research report and competitor analysis.</div>
+          </div>
+        </div>
+        <div class="industry-pills" id="industry-pills">
+          <div class="industry-pill" onclick="selectIndustry(this,'Automotive logistics & vehicle relocation')">Automotive logistics & vehicle relocation</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'Car rental & fleet management')">Car rental & fleet management</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'Used car marketplace')">Used car marketplace</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'Mobility SaaS & marketplace')">Mobility SaaS & marketplace</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'Logistics & last-mile delivery')">Logistics & last-mile delivery</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'Fintech & payments')">Fintech & payments</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'HR tech & freelance platforms')">HR tech & freelance platforms</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'E-commerce & retail tech')">E-commerce & retail tech</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'B2B SaaS')">B2B SaaS</div>
+          <div class="industry-pill" onclick="selectIndustry(this,'Other')">Other (specify below)</div>
+        </div>
+        <div style="margin-top:12px;">
+          <input class="form-input" id="industry-custom" placeholder="Or describe your industry in your own words…" style="max-width:480px;" />
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green">🌍</div>
+          <div>
+            <div class="card-title">Target markets</div>
+            <div class="card-desc">Which countries or regions are you exploring? You can refine this at any time.</div>
+          </div>
+        </div>
+        <div class="setup-grid">
+          <div class="form-group">
+            <div class="form-label">Primary target market</div>
+            <input class="form-input" id="market-primary" placeholder="e.g. United States" />
+          </div>
+          <div class="form-group">
+            <div class="form-label">Secondary markets (optional)</div>
+            <input class="form-input" id="market-secondary" placeholder="e.g. Germany, Brazil" />
+          </div>
+          <div class="form-group">
+            <div class="form-label">Entry timeline</div>
+            <select class="form-input form-select" id="timeline">
+              <option value="">Select timeline</option>
+              <option>Within 3 months</option>
+              <option>3–6 months</option>
+              <option>6–12 months</option>
+              <option>12+ months</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Team size for expansion</div>
+            <select class="form-input form-select" id="team-size">
+              <option value="">Select size</option>
+              <option>Solo / founder-led</option>
+              <option>2–5 people</option>
+              <option>5–15 people</option>
+              <option>15+ people</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-cta">
+        <button class="btn-outline" onclick="showView('landing')">Cancel</button>
+        <button class="btn-primary" onclick="startProject()">Start project →</button>
+      </div>
+    </div>
+
+    <!-- ── RESEARCH / VALIDATION / EXPANSION VIEW ── -->
+    <div id="view-research" class="view">
+      <div class="page-hero">
+        <h1 id="phase-hero-title">Market <em>research</em></h1>
+        <p id="phase-hero-desc">Build a fact-based picture of market size, key players, and structural dynamics — all sourced from verified public references.</p>
+      </div>
+
+      <!-- Phase tabs -->
+      <div class="phase-nav">
+        <div class="phase-tab active" id="ptab-research" onclick="showPhase('research')">
+          <div class="pt-num">Phase 1</div>
+          <div class="pt-name">Market research</div>
+        </div>
+        <div class="phase-tab" id="ptab-validation" onclick="showPhase('validation')">
+          <div class="pt-num">Phase 2</div>
+          <div class="pt-name">Market validation</div>
+        </div>
+        <div class="phase-tab" id="ptab-expansion" onclick="showPhase('expansion')">
+          <div class="pt-num">Phase 3</div>
+          <div class="pt-name">Market expansion</div>
+        </div>
+      </div>
+
+      <!-- PHASE 1: RESEARCH -->
+      <div id="phase-research" class="phase-content-panel">
+
+        <!-- Competitor Analysis -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">🔍</div>
+            <div>
+              <div class="card-title-row">
+                <div class="card-title">Competitor analysis</div>
+                <span class="badge core">Core deliverable</span>
+              </div>
+              <div class="card-desc">The most critical study in market research. Knowing who owns the market, their scale, and their clients tells you where the white space is — and what it costs to win.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Entering a market without a deep competitor map is the single most common and costly mistake in international expansion. Revenue scale tells you how funded and entrenched they are. Geography reveals gaps. Key clients show you which customer segments are locked up. Without this, you're pricing, positioning, and pitching blind.
+          </div>
+
+          <div class="inner-tabs">
+            <div class="inner-tab active" onclick="switchInnerTab(this,'comp-table-view')">Competitor database</div>
+            <div class="inner-tab" onclick="switchInnerTab(this,'comp-steps-view')">How to research</div>
+            <div class="inner-tab" onclick="switchInnerTab(this,'comp-sources-view')">Verified sources</div>
+          </div>
+
+          <div id="comp-table-view">
+            <div class="comp-header">
+              <div style="font-size:13px;color:var(--ink-muted);">Example: automotive logistics & vehicle relocation — U.S. market</div>
+              <div class="comp-filters">
+                <div class="filter-chip active">All</div>
+                <div class="filter-chip">Direct</div>
+                <div class="filter-chip">Adjacent</div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Revenue / Scale</th>
+                    <th>Operating geography</th>
+                    <th>Key clients</th>
+                    <th>Website</th>
+                    <th>Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Draiver</td>
+                    <td><span class="revenue-badge mid">~$50M ARR</span></td>
+                    <td><span class="tag geo">USA (all 50 states)</span></td>
+                    <td><span class="tag client">AutoNation</span><span class="tag client">Cox Auto</span><span class="tag client">Hertz</span></td>
+                    <td><a class="website-link" href="https://draiver.com" target="_blank">draiver.com ↗</a></td>
+                    <td><span class="badge core">Direct</span></td>
+                  </tr>
+                  <tr>
+                    <td>Acertus</td>
+                    <td><span class="revenue-badge high">~$200M+</span></td>
+                    <td><span class="tag geo">USA</span><span class="tag geo">Canada</span></td>
+                    <td><span class="tag client">Ford</span><span class="tag client">GM</span><span class="tag client">CarMax</span></td>
+                    <td><a class="website-link" href="https://acertus.com" target="_blank">acertus.com ↗</a></td>
+                    <td><span class="badge core">Direct</span></td>
+                  </tr>
+                  <tr>
+                    <td>iMoova</td>
+                    <td><span class="revenue-badge low">~$10M est.</span></td>
+                    <td><span class="tag geo">USA</span><span class="tag geo">Australia</span><span class="tag geo">UK</span></td>
+                    <td><span class="tag client">Avis</span><span class="tag client">Budget</span><span class="tag client">Fleet operators</span></td>
+                    <td><a class="website-link" href="https://imoova.com" target="_blank">imoova.com ↗</a></td>
+                    <td><span class="badge insight">Adjacent</span></td>
+                  </tr>
+                  <tr>
+                    <td>Transfercar</td>
+                    <td><span class="revenue-badge low">~$5M est.</span></td>
+                    <td><span class="tag geo">USA</span><span class="tag geo">NZ</span><span class="tag geo">AU</span></td>
+                    <td><span class="tag client">Rental agencies</span><span class="tag client">Private relocators</span></td>
+                    <td><a class="website-link" href="https://transfercarus.com" target="_blank">transfercarus.com ↗</a></td>
+                    <td><span class="badge insight">Adjacent</span></td>
+                  </tr>
+                  <tr>
+                    <td>United Road</td>
+                    <td><span class="revenue-badge high">~$400M+</span></td>
+                    <td><span class="tag geo">USA (national)</span></td>
+                    <td><span class="tag client">OEM dealers</span><span class="tag client">Auction houses</span></td>
+                    <td><a class="website-link" href="https://unitedroad.com" target="_blank">unitedroad.com ↗</a></td>
+                    <td><span class="badge required">Incumbent</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="prompt-box">
+              <div class="prompt-box-label">Research a specific competitor</div>
+              <div class="prompt-row">
+                <input class="prompt-input" id="comp-research-input" placeholder="e.g. Draiver funding history, pricing model, and recent client wins" />
+                <button class="prompt-btn" onclick="researchCompetitor()">Research ↗</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="comp-steps-view" style="display:none">
+            <div class="steps">
+              <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Identify all competitors</div><div class="step-text">List every direct and adjacent player operating in your target geography. Include startups, incumbents, and adjacent platforms. Use Google, LinkedIn, Crunchbase, and industry association directories as starting points.</div></div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Revenue & funding scale</div><div class="step-text">Find last reported revenue, latest funding round, or valuation. Primary sources: Crunchbase, Pitchbook, Companies House (UK), Orbis (global), SEC EDGAR (US public), annual reports. For private companies, use LinkedIn headcount as a proxy.</div></div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Operating geography</div><div class="step-text">Map exactly where each competitor operates — countries, states, cities. Note gaps between their coverage and your target markets. Job postings are one of the most reliable real-time signals for geographic expansion.</div></div></div>
+              <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Key clients</div><div class="step-text">Identify their biggest named clients via press releases, case studies, LinkedIn endorsements, G2 reviews, or SEC filings. This reveals which customer segments are already locked up and where you can differentiate.</div></div></div>
+              <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Official websites & digital presence</div><div class="step-text">Record official website, app store presence, and social following. App reviews on iOS/Android are gold — they surface unmet needs your product can address.</div></div></div>
+              <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">Additional intelligence (on demand)</div><div class="step-text">For deeper dives — pricing models, tech stack, NPS estimates, employee churn — use the research prompt box to generate sourced findings on any specific competitor dimension.</div></div></div>
+            </div>
+          </div>
+
+          <div id="comp-sources-view" style="display:none">
+            <div class="source-grid">
+              <div class="source-item"><strong>Crunchbase</strong><span>Funding rounds, investors, headcount, founding date</span></div>
+              <div class="source-item"><strong>Pitchbook</strong><span>Revenue estimates, M&A activity, cap tables</span></div>
+              <div class="source-item"><strong>Companies House</strong><span>UK company filings, directors, filed accounts</span></div>
+              <div class="source-item"><strong>SEC EDGAR</strong><span>US public company financials and disclosures</span></div>
+              <div class="source-item"><strong>Orbis (Bureau van Dijk)</strong><span>Global private company financials</span></div>
+              <div class="source-item"><strong>LinkedIn</strong><span>Headcount, job postings, geographic expansion signals</span></div>
+              <div class="source-item"><strong>G2 / Capterra</strong><span>Customer reviews, feature comparisons, pricing intel</span></div>
+              <div class="source-item"><strong>SimilarWeb</strong><span>Web traffic, audience geography, channel mix</span></div>
+              <div class="source-item"><strong>App Store / Play Store</strong><span>User reviews, version history, download estimates</span></div>
+              <div class="source-item"><strong>Press releases</strong><span>Client announcements, partnership news, funding</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Market Size -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon amber">📊</div>
+            <div>
+              <div class="card-title-row">
+                <div class="card-title">Market size & structure</div>
+                <span class="badge insight">Quantitative</span>
+              </div>
+              <div class="card-desc">TAM, SAM, and SOM with verified references. Built bottom-up from fleet data, or top-down from industry reports.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Market size anchors every business decision that follows — pricing, team sizing, investor narrative, and go/no-go. A market that looks big on a headline TAM slide may have a SAM so fragmented that unit economics never work. Build from verified data, not analyst estimates.
+          </div>
+          <div class="steps">
+            <div class="step"><div class="step-num">TAM</div><div class="step-body"><div class="step-title">Total addressable market</div><div class="step-text">Use industry reports (IBIS World, Statista, Grand View Research, Allied MR) or build bottom-up: fleet size × average revenue per vehicle relocation × annual turnover rate. Source: ACEA, national road authorities, JARA, ARN.</div></div></div>
+            <div class="step"><div class="step-num">SAM</div><div class="step-body"><div class="step-title">Serviceable addressable market</div><div class="step-text">Filter TAM to geographies and customer segments you can realistically reach within 18 months. Apply your scoring model (volume, purchasing power, velocity, logistics density) to weight markets.</div></div></div>
+            <div class="step"><div class="step-num">SOM</div><div class="step-body"><div class="step-title">Serviceable obtainable market</div><div class="step-text">Your realistic capture rate in year 1, given competitive density, your go-to-market capacity, and comparable ramp rates from markets you already operate in.</div></div></div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">Ask a market size question</div>
+            <div class="prompt-row">
+              <input class="prompt-input" id="market-size-input" placeholder="e.g. Total fleet relocation market size in Florida with sources" />
+              <button class="prompt-btn" onclick="researchMarketSize()">Research ↗</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verified Sources Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">📚</div>
+            <div>
+              <div class="card-title">Verified public sources</div>
+              <div class="card-desc">Every data point in your report must have a stable, citable URL. Decisions built on unverified data fail at due diligence.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Investors, boards, and partners will ask "where does this number come from?" If your answer is "a market research firm estimated it," that's a weak foundation. Building from primary sources (government databases, association statistics, official filings) makes your research defensible and credible.
+          </div>
+          <div class="source-grid" style="margin-top:4px;">
+            <div class="source-item"><strong>Fleet & vehicle data</strong><span>ACEA, national road authorities, JARA, ARN, Dataforce, BVRLA</span></div>
+            <div class="source-item"><strong>Economic indicators</strong><span>World Bank, OECD, Eurostat, IMF, national statistics offices</span></div>
+            <div class="source-item"><strong>Company financials</strong><span>Crunchbase, Orbis, Companies House, SEC EDGAR, annual reports</span></div>
+            <div class="source-item"><strong>Industry reports</strong><span>IBIS World, Statista, Grand View Research, Allied Market Research</span></div>
+            <div class="source-item"><strong>Legal & regulatory</strong><span>Official government portals, EUR-Lex, state legislature sites, court records</span></div>
+            <div class="source-item"><strong>Competitive intel</strong><span>LinkedIn, G2, Capterra, press releases, job boards, app store reviews</span></div>
+          </div>
+        </div>
+
+        <div class="report-cta">
+          <div class="report-cta-text">
+            <h3>Generate your research report</h3>
+            <p>Full competitor analysis, market sizing, and sourced findings — formatted for internal sharing.</p>
+          </div>
+          <button class="report-cta-btn" onclick="generateReport()">Generate full report ↗</button>
+        </div>
+      </div>
+
+      <!-- PHASE 2: VALIDATION -->
+      <div id="phase-validation" class="phase-content-panel" style="display:none">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">👥</div>
+            <div>
+              <div class="card-title-row">
+                <div class="card-title">Customer validation</div>
+                <span class="badge required">Before capital deployment</span>
+              </div>
+              <div class="card-desc">Confirm that real demand exists, willingness to pay aligns with your model, and the buying process is what you assumed it to be.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Markets that look attractive on paper often have entrenched buying habits, procurement cycles of 6–18 months, or a willingness-to-pay that doesn't cover your unit cost. 10 structured customer interviews cost almost nothing. A failed market entry costs everything.
+          </div>
+          <div class="steps">
+            <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Target customer interviews — minimum 10</div><div class="step-text">Structured conversations with decision-makers in your target segment. Record current solutions, pain points, switching costs, and budget ranges. Do not pitch — just listen.</div></div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Willingness to pay</div><div class="step-text">Use Van Westendorp pricing questions or Jobs-to-be-Done framing to anchor your pricing before building a P&L. "What would you expect to pay?" is not enough — you need the floor, ceiling, and sweet spot.</div></div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Letter of intent or paid pilot</div><div class="step-text">A soft verbal yes is not validation. A signed LOI, a paid pilot, or a committed first customer is. Target at least 1 LOI before proceeding to Phase 3.</div></div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Buying process mapping</div><div class="step-text">Who approves the purchase? How long does procurement take? What alternatives are they currently comparing you against? This shapes your sales motion for the entire market.</div></div></div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">Customer research prompt</div>
+            <div class="prompt-row">
+              <input class="prompt-input" id="customer-input" placeholder="e.g. Key questions to ask fleet managers at dealer groups in the US" />
+              <button class="prompt-btn" onclick="researchCustomer()">Generate ↗</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon amber">⚖️</div>
+            <div>
+              <div class="card-title-row">
+                <div class="card-title">Legal & operational validation</div>
+                <span class="badge required">High risk area</span>
+              </div>
+              <div class="card-desc">Your business model may be nationally legal but blocked at state/local level — especially for freelance or gig operating models.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Legal misclassification of workers (employee vs. independent contractor) is the most common operational risk for platform businesses expanding internationally. In some U.S. states (California, Massachusetts, New Jersey), the ABC test creates significant exposure. Discovering this after your first hire is expensive. Discovering it after building a team is catastrophic.
+          </div>
+          <div class="check-list">
+            <div class="check-item"><div class="check-icon req">!</div><div class="check-text"><strong>Freelance classification risk</strong> — Review ABC test exposure, Prop 22 analogues, and local labour rulings before a single hire. Engage local counsel. Cost: ~$2–5k. Cost of getting it wrong: 7 figures.</div></div>
+            <div class="check-item"><div class="check-icon warn">~</div><div class="check-text"><strong>Licensing & permits</strong> — Identify every licence required (vehicle transport broker, insurance, data handling/GDPR equivalent). Map requirements by state and country.</div></div>
+            <div class="check-item"><div class="check-icon warn">~</div><div class="check-text"><strong>Insurance & liability</strong> — Confirm that fleet insurance, driver liability cover, and damage waiver products are available in the new market at viable cost per trip.</div></div>
+            <div class="check-item"><div class="check-icon ok">✓</div><div class="check-text"><strong>Test plate & transit plate regulations</strong> — In automotive logistics, confirm whether dealer plates or transit plates are available, and what cross-state or cross-border rules apply to vehicles in transit.</div></div>
+            <div class="check-item"><div class="check-icon ok">✓</div><div class="check-text"><strong>Data residency & privacy</strong> — Confirm data localisation requirements (GDPR in EU, CCPA in California, LGPD in Brazil). Platform businesses handling driver and customer data face real penalties for non-compliance.</div></div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">Legal research prompt</div>
+            <div class="prompt-row">
+              <input class="prompt-input" id="legal-input" placeholder="e.g. ABC test freelance classification risk for vehicle relocation in Texas" />
+              <button class="prompt-btn" onclick="researchLegal()">Research ↗</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">💰</div>
+            <div>
+              <div class="card-title-row">
+                <div class="card-title">Unit economics validation</div>
+                <span class="badge core">Go / no-go gate</span>
+              </div>
+              <div class="card-desc">Expansion decisions must be backed by evidence that the core transaction is profitable at realistic volume — not just in a spreadsheet best case.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Many companies expand with a business model that worked at home, only to discover that local labour costs, fuel prices, or driver acquisition costs make the unit economics negative. Validating this before scaling prevents expensive reversals.
+          </div>
+          <div class="steps">
+            <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Revenue per trip / per vehicle</div><div class="step-text">Benchmark against comparable markets you already operate in. Account for distance distribution, fleet type mix, and urgency premium in the new market.</div></div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Driver / freelancer acquisition cost</div><div class="step-text">Model cost per verified driver onboarded in the new market — including background checks, insurance onboarding, and first-trip support. Compare to your home market baseline.</div></div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Return logistics cost</div><div class="step-text">Calculate return cost per km using local transport benchmarks. Long-distance states (California avg 442km between cities) have asymmetric return cost profiles that compress margins if not modelled explicitly.</div></div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Payback period</div><div class="step-text">How many trips does a newly onboarded driver need to complete before you recover acquisition cost? This drives your launch cluster density strategy.</div></div></div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">Unit economics research</div>
+            <div class="prompt-row">
+              <input class="prompt-input" id="economics-input" placeholder="e.g. Average vehicle relocation revenue per km in the US market" />
+              <button class="prompt-btn" onclick="researchEconomics()">Research ↗</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-cta">
+          <div class="report-cta-text">
+            <h3>Generate validation report</h3>
+            <p>Customer findings, legal risk assessment, and unit economics — in one shareable document.</p>
+          </div>
+          <button class="report-cta-btn" onclick="generateReport()">Generate full report ↗</button>
+        </div>
+      </div>
+
+      <!-- PHASE 3: EXPANSION -->
+      <div id="phase-expansion" class="phase-content-panel" style="display:none">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">🗺️</div>
+            <div>
+              <div class="card-title-row">
+                <div class="card-title">Market prioritisation</div>
+                <span class="badge insight">Strategic</span>
+              </div>
+              <div class="card-desc">Sequence markets by effort-to-return ratio, not just market size. Entering too many markets simultaneously is one of the most common causes of expansion failure.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Every market you enter consumes legal setup time, management attention, and capital. A single well-executed market entry generates references and revenue that fund the next. Five underfunded simultaneous entries generate five half-built presences and five sets of learnings too thin to act on.
+          </div>
+
+          <div style="margin-bottom:14px;font-size:13px;color:var(--ink-muted);">Example scoring matrix — automotive logistics, U.S. state-level</div>
+          <div class="matrix-row">
+            <div class="matrix-cell header">State</div>
+            <div class="matrix-cell header">Volume score</div>
+            <div class="matrix-cell header">Legal risk</div>
+            <div class="matrix-cell header">Long-distance potential</div>
+            <div class="matrix-cell header">Overall</div>
+          </div>
+          <div class="matrix-row">
+            <div class="matrix-cell country">New York</div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:90%"></div></div><span style="font-size:12px;color:var(--ink-muted);">High</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill amber" style="width:55%"></div></div><span style="font-size:12px;color:var(--ink-muted);">Medium</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:80%"></div></div><span style="font-size:12px;color:var(--ink-muted);">354km avg</span></div>
+            <div class="matrix-cell"><strong style="color:var(--accent);">10 / 10</strong></div>
+          </div>
+          <div class="matrix-row">
+            <div class="matrix-cell country">Florida</div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:82%"></div></div><span style="font-size:12px;color:var(--ink-muted);">High</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:20%"></div></div><span style="font-size:12px;color:var(--ink-muted);">Low</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:72%"></div></div><span style="font-size:12px;color:var(--ink-muted);">305km avg</span></div>
+            <div class="matrix-cell"><strong style="color:var(--accent);">9 / 10</strong></div>
+          </div>
+          <div class="matrix-row">
+            <div class="matrix-cell country">Texas</div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:95%"></div></div><span style="font-size:12px;color:var(--ink-muted);">Very high</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:15%"></div></div><span style="font-size:12px;color:var(--ink-muted);">Low</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:70%"></div></div><span style="font-size:12px;color:var(--ink-muted);">306km avg</span></div>
+            <div class="matrix-cell"><strong style="color:var(--accent);">7 / 10</strong></div>
+          </div>
+          <div class="matrix-row">
+            <div class="matrix-cell country">California</div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:98%"></div></div><span style="font-size:12px;color:var(--ink-muted);">Very high</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill amber" style="width:90%"></div></div><span style="font-size:12px;color:var(--ink-muted);">Very high</span></div>
+            <div class="matrix-cell"><div class="score-bar"><div class="score-fill" style="width:100%"></div></div><span style="font-size:12px;color:var(--ink-muted);">442km avg</span></div>
+            <div class="matrix-cell"><strong style="color:var(--amber);">6 / 10*</strong></div>
+          </div>
+
+          <div class="prompt-box">
+            <div class="prompt-box-label">Market prioritisation research</div>
+            <div class="prompt-row">
+              <input class="prompt-input" id="priority-input" placeholder="e.g. Score and rank the top 5 European markets for vehicle relocation entry" />
+              <button class="prompt-btn" onclick="researchPriority()">Research ↗</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon amber">🎯</div>
+            <div>
+              <div class="card-title-row">
+                <div class="card-title">Go-to-market localisation</div>
+                <span class="badge core">Pre-launch</span>
+              </div>
+              <div class="card-desc">A copy-paste GTM from your home market ignores local buyer behaviour, pricing norms, and competitive dynamics — the three factors most likely to kill a launch.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            What worked in Finland or Poland will not automatically work in the US, Brazil, or Japan. Pricing must reflect local median wages and petrol costs. Sales channels must match how buyers actually buy. Driver recruitment must use channels that exist in that market. Localisation is not translation — it's rebuilding the GTM from local data.
+          </div>
+          <div class="steps">
+            <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Local partner mapping</div><div class="step-text">Identify dealer groups, auction houses, leasing associations, and fleet managers as channel partners. The fastest path to volume in a new market is almost always through a large existing player — not direct sales from scratch.</div></div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Pricing localisation</div><div class="step-text">Adjust pricing to local median wages, petrol costs, return logistics costs, and competitor rate cards. Do not import EUR pricing directly to USD markets — parity pricing is rarely correct.</div></div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Driver supply strategy</div><div class="step-text">Map local freelancer platforms, automotive job boards, and dealership networks as driver recruitment channels. In each market, one channel typically dominates — find it before launch.</div></div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Regulatory playbook</div><div class="step-text">Document the specific licence, insurance, and plate setup required per market. Assign owners and deadlines. Nothing delays a market launch more predictably than a regulatory step that was assumed rather than confirmed.</div></div></div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-box-label">GTM localisation research</div>
+            <div class="prompt-row">
+              <input class="prompt-input" id="gtm-input" placeholder="e.g. Top dealer groups and auction houses in Florida for vehicle relocation partnerships" />
+              <button class="prompt-btn" onclick="researchGTM()">Research ↗</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">📈</div>
+            <div>
+              <div class="card-title">Expansion performance tracking</div>
+              <div class="card-desc">Markets that don't hit milestones within 90 days of launch need a structured review — not indefinite patience.</div>
+            </div>
+          </div>
+          <div class="why-box">
+            <strong>Why this matters</strong>
+            Expansion without clear KPIs turns "we're still building momentum" into an indefinite excuse. Define what success looks like at 30, 60, and 90 days before you launch — so the decision to accelerate, pivot, or exit is data-driven, not emotional.
+          </div>
+          <div class="info-pills">
+            <div class="info-pill">Trips per active driver / month</div>
+            <div class="info-pill">Customer acquisition cost</div>
+            <div class="info-pill">Revenue per trip</div>
+            <div class="info-pill">Driver churn rate (30-day)</div>
+            <div class="info-pill">Fleet client NPS</div>
+            <div class="info-pill">Return logistics cost per km</div>
+            <div class="info-pill">Time to first trip (new customer)</div>
+            <div class="info-pill">Gross margin per market</div>
+            <div class="info-pill">LOIs converted to paying clients</div>
+          </div>
+        </div>
+
+        <div class="report-cta">
+          <div class="report-cta-text">
+            <h3>Generate expansion report</h3>
+            <p>Market prioritisation, GTM plan, and KPI framework — ready to share with your board.</p>
+          </div>
+          <button class="report-cta-btn" onclick="generateReport()">Generate full report ↗</button>
+        </div>
+      </div>
+
+    </div><!-- /view-research -->
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+var currentPhase = 'research';
+var projectIndustry = '';
+var projectName = '';
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  var labels = { landing: 'Overview', setup: 'New project', research: 'Phases' };
+  document.getElementById('bc-phase').textContent = labels[name] || name;
+  document.getElementById('bc-sep').style.display = name === 'research' ? '' : 'none';
+  document.getElementById('bc-current').textContent = name === 'research' ? phaseLabel(currentPhase) : '';
+  document.getElementById('top-generate-btn').style.display = name === 'research' ? '' : 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (name === 'landing') document.querySelectorAll('.nav-item')[0].classList.add('active');
+  if (name === 'setup') document.querySelectorAll('.nav-item')[1].classList.add('active');
+}
+
+function phaseLabel(p) {
+  return { research: 'Market research', validation: 'Market validation', expansion: 'Market expansion' }[p];
+}
+
+function showPhase(name) {
+  currentPhase = name;
+  document.querySelectorAll('.phase-content-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('phase-' + name).style.display = 'block';
+  document.querySelectorAll('.phase-tab').forEach(t => { t.classList.remove('active'); });
+  document.getElementById('ptab-' + name).classList.add('active');
+
+  var heroes = {
+    research: ['Market <em>research</em>', 'Build a fact-based picture of market size, key players, and structural dynamics — all sourced from verified public references.'],
+    validation: ['Market <em>validation</em>', 'Confirm real demand, legal viability, and unit economics before deploying capital into a new market.'],
+    expansion: ['Market <em>expansion</em>', 'Prioritise, sequence, and localise your entry into validated markets with a rigorous go-to-market framework.']
+  };
+  document.getElementById('phase-hero-title').innerHTML = heroes[name][0];
+  document.getElementById('phase-hero-desc').textContent = heroes[name][1];
+  document.getElementById('bc-current').textContent = phaseLabel(name);
+
+  var navIdx = ['research','validation','expansion'].indexOf(name) + 2;
+  document.querySelectorAll('.nav-item')[navIdx].classList.add('active');
+
+  updatePhaseDots(name);
+}
+
+function updatePhaseDots(phase) {
+  var dots = [document.getElementById('dot-1'), document.getElementById('dot-2'), document.getElementById('dot-3')];
+  var idx = ['research','validation','expansion'].indexOf(phase);
+  dots.forEach((d,i) => {
+    d.className = 'phase-dot';
+    if (i < idx) d.classList.add('done');
+    if (i === idx) d.classList.add('active');
+  });
+}
+
+function selectIndustry(el, name) {
+  document.querySelectorAll('.industry-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  projectIndustry = name;
+}
+
+function updateProjectMeta() {
+  var n = document.getElementById('company-name').value;
+  document.getElementById('sidebar-project-name').textContent = n || '—';
+  projectName = n;
+}
+
+function startProject() {
+  var custom = document.getElementById('industry-custom').value;
+  if (custom && !projectIndustry) projectIndustry = custom;
+  var company = document.getElementById('company-name').value;
+  if (company) {
+    document.getElementById('sidebar-project-name').textContent = company;
+    projectName = company;
+  }
+  if (projectIndustry) {
+    document.getElementById('sidebar-project-industry').textContent = projectIndustry;
+    document.getElementById('top-industry-badge').textContent = projectIndustry;
+    document.getElementById('top-industry-badge').style.display = '';
+  }
+  showView('research');
+  showPhase('research');
+}
+
+function switchInnerTab(el, targetId) {
+  var parent = el.closest('.card');
+  parent.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  var ids = ['comp-table-view','comp-steps-view','comp-sources-view'];
+  ids.forEach(id => { var el2 = document.getElementById(id); if(el2) el2.style.display = 'none'; });
+  var t = document.getElementById(targetId);
+  if (t) t.style.display = '';
+}
+
+function buildPrompt(context, question) {
+  var ind = projectIndustry || 'automotive logistics and vehicle relocation';
+  var co = projectName ? 'for ' + projectName + ' (' + ind + ')' : 'for a company in the ' + ind + ' industry';
+  return context + ' ' + co + ': ' + question + '. Provide sourced, verified findings with public references.';
+}
+
+function generateReport() {
+  var ind = projectIndustry || 'automotive logistics and vehicle relocation';
+  var co = projectName ? projectName + ' (' + ind + ')' : 'a company in the ' + ind + ' industry';
+  var phase = phaseLabel(currentPhase);
+  var msg = 'Generate a full ' + phase + ' report for ' + co + '. ';
+  if (currentPhase === 'research') {
+    msg += 'Include: (1) Competitor analysis with company name, estimated revenue, operating geographies, key clients, and official website for each competitor — each data point with a verified public source URL. (2) Market size (TAM, SAM, SOM) built from verified fleet and economic data. (3) All key sources cited. Format as a structured report I can share internally.';
+  } else if (currentPhase === 'validation') {
+    msg += 'Include: (1) Suggested customer interview questions for the target segment. (2) Legal and regulatory checklist (freelance classification, licensing, insurance, test plates). (3) Unit economics framework with local benchmarks. Cite all sources.';
+  } else {
+    msg += 'Include: (1) Market prioritisation scoring matrix for the top candidate markets. (2) Beachhead market recommendation with rationale. (3) GTM localisation checklist. (4) 90-day KPI framework. Cite all sources.';
+  }
+  if (typeof sendPrompt === 'function') sendPrompt(msg);
+  else { alert('Report prompt ready — paste into Claude:\n\n' + msg); }
+}
+
+function researchCompetitor() {
+  var q = document.getElementById('comp-research-input').value.trim();
+  if (!q) return;
+  var msg = buildPrompt('Deep-dive competitor research', q);
+  if (typeof sendPrompt === 'function') sendPrompt(msg); else alert(msg);
+}
+
+function researchMarketSize() {
+  var q = document.getElementById('market-size-input').value.trim();
+  if (!q) return;
+  var msg = buildPrompt('Market size research with verified sources', q);
+  if (typeof sendPrompt === 'function') sendPrompt(msg); else alert(msg);
+}
+
+function researchCustomer() {
+  var q = document.getElementById('customer-input').value.trim();
+  if (!q) return;
+  var msg = buildPrompt('Customer validation research', q);
+  if (typeof sendPrompt === 'function') sendPrompt(msg); else alert(msg);
+}
+
+function researchLegal() {
+  var q = document.getElementById('legal-input').value.trim();
+  if (!q) return;
+  var msg = buildPrompt('Legal and regulatory research', q);
+  if (typeof sendPrompt === 'function') sendPrompt(msg); else alert(msg);
+}
+
+function researchEconomics() {
+  var q = document.getElementById('economics-input').value.trim();
+  if (!q) return;
+  var msg = buildPrompt('Unit economics research with verified benchmarks', q);
+  if (typeof sendPrompt === 'function') sendPrompt(msg); else alert(msg);
+}
+
+function researchPriority() {
+  var q = document.getElementById('priority-input').value.trim();
+  if (!q) return;
+  var msg = buildPrompt('Market prioritisation and scoring research', q);
+  if (typeof sendPrompt === 'function') sendPrompt(msg); else alert(msg);
+}
+
+function researchGTM() {
+  var q = document.getElementById('gtm-input').value.trim();
+  if (!q) return;
+  var msg = buildPrompt('Go-to-market localisation research', q);
+  if (typeof sendPrompt === 'function') sendPrompt(msg); else alert(msg);
+}
+</script>
+</body>
+</html>
